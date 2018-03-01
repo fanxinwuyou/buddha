@@ -1,2 +1,2 @@
-Git is free software.
-hello,world!
+只是一些私人文件，用来同步的。
+当然重要的，是要经过加密的。
