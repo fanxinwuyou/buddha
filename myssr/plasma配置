@@ -82,6 +82,7 @@ To use systemd-networkd, start/enable systemd-networkd.service.
 It is optional to also start/enable systemd-resolved.service, 
 systemctl  enable  systemd-networkd.service  systemd-resolved.service
 
+nload似乎更好用，不过要带上device wlan0的参数。
 
 
 
