@@ -67,7 +67,7 @@ export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 
 
-
+kwalletmanager钱包可以设置空密码，这样就不会再有提示了。
 
 
 
