@@ -1,1 +1,98 @@
-heloo,world
+ cat /usr/lib/systemd/system/ssr.service
+[Unit]
+Description=ShadowsocksR-Libev Client Service
+After=network.target
+
+[Service]
+Type=simple
+User=nobody
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ExecStart=/usr/local/share/shadowsocksr/shadowsocks/local.py -c /usr/local/share/shadowsocksr/user-config.json
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+cat /usr/local/share/shadowsocksr/user-config.json
+{
+    "server": "ip",
+    "server_ipv6": "::",
+    "server_port": 8888,
+    "local_address": "192.168.43.3",
+    "local_port": 1080,
+"password": "passwd",
+    "method": "aes-256-cfb",
+    "protocol": "auth_aes128_md5",
+    "protocol_param": "",
+    "obfs": "plain",
+    "obfs_param": "",
+    "speed_limit_per_con": 0,
+    "speed_limit_per_user": 0,
+"additional_ports" : {}, // only works under multi-user mode
+    "additional_ports_only" : false, // only works under multi-user mode
+    "timeout": 120,
+    "udp_timeout": 60,
+    "dns_ipv6": false,
+    "connect_verbose_info": 0,
+    "redirect": "",
+    "fast_open": false
+}
+
+
+8、以root权限打开编译 vim  /etc/pacman.conf，将下面这三行加入到文件末尾并 保存：
+[archlinuxcn]
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+ 
+同步软件信息库并安装yaourt：
+sudo pacman -Sy yaourt fakeroot
+然后请安装 yaourt -Sy  archlinuxcn-keyring 包以导入 GPG key。
+
+滚动更新命令使用yaourt非常简单：
+yaourt -Syu --aur
+也需要顺手装上开发工具：yaourt -S --needed base-devel
+
+
+
+google-chrome-stable --proxy-server="socks5://192.168.43.7:1080"
+
+
+10、中文输入法：
+sudo pacman -S fcitx fcitx-table-extra fcitx-configtool fcitx-qt5  fcitx-gtk2 fcitx-gtk3 fcitx-qt4 
+
+在 ~/.xprofile 中写
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
