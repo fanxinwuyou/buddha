@@ -1,10 +1,86 @@
+1、先联网，dhcpcd，或无线wifi-menu，选择mirrors：sudo pacman-mirrors -i -c China -m rank
+2、分区，efi用gpt分区，若全新则m后g，fdisk -l ，fdisk /dev/sda，先一个250m的efi的boot分区，再一个大分区，n，之后可以+512m大小，有提示。写入w，后退出。 cfdisk更好用。（不能太大了，先fdisk，再用parted看看有没有boot\esp二项）
+3、分区时，fdisk /dev/sda后，输入t，把boot分区改为efi，再格式化：mkfs.fat -F32 /dev/sda1，sda2格式化为：mkfs.ext4  /dev/sda2    分区也有软件cfdisk
+4、挂载根目录，mount /dev/sda2 /mnt，efi启动分区，mount /dev/sda1 /mnt/boot，先弄个boot文件夹
+5、镜像源：vim /etc/pacman.d/mirrorlist，查找回车，dd再大写的P粘贴。
+6、安装基本包 pacstrap /mnt base 
+7、配置Fstab，fstabgen -U /mnt >> /mnt/etc/fstab，再  cat   /mnt/etc/fstab 一遍看看。
+8、Chroot意为Change root，相当于把操纵权交给我们新安装，命令：arch-chroot /mnt，此时还可以连网，要提前安装一些软件包，pacman -S vim  openssh sudo  dialog wpa_supplicant  networkmanager
+ 9、设置时区：ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime，生成文件：hwclock --systohc
+10、设置locale：vim /etc/locale.gen，再执行：locale-gen
+11、设置主机名，vim /etc/hostname，设置root密码，passwd
+要安装  intel-ucode
+12、安装grub引导，pacman -S grub efibootmgr，配置，grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub  --recheck，菜单，grub-mkconfig -o /boot/grub/grub.cfg
+13、查看/boot分区有没有img文件，没有要pacman -S linux，reboot即可完成。（若bios里没有efi文件启动，而从光盘能找到efi并启动，参见后续文章）
+开启dhcpcd\sshd，添加用户：useradd -m -G wheel wuchao，修改visudo，wheel用户组，
+
+7. 安装桌面环境：要提前配置网络：需要禁用netctl并启用NetworkManager：
+sudo systemctl disable netctl
+sudo systemctl enable NetworkManager （注意大小写），网络管理：network-manager-applet
+8、以root权限打开编译 vim  /etc/pacman.conf，将下面这三行加入到文件末尾并 保存：
+[archlinuxcn]
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+ 
+同步软件信息库并安装yaourt：
+sudo pacman -Sy yaourt fakeroot
+然后请安装 yaourt -Sy  archlinuxcn-keyring 包以导入 GPG key。
+
+滚动更新命令使用yaourt非常简单：
+yaourt -Syu --aur
+也需要顺手装上开发工具：yaourt -S --needed base-devel
+
+
+9、安装google-chrome，命令行启动带代理的：google-chrome-stable --proxy-server="socks5://192.168.43.7:1080"，先安装相应的插件，登录等。插件：https://chrome.google.com/webstore/detail/proxy-switchyomega/padekgcemlokadohgkifijomclgjgif?hl=en
+
+10、中文输入法：
+sudo pacman -S fcitx fcitx-table-extra fcitx-configtool fcitx-qt5  fcitx-gtk2 fcitx-gtk3 fcitx-qt4 
+
+在 ~/.xprofile 中写
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+
+
+1).安装显卡驱动：
+
+[root@Arch ~]# pacman -S xf86-video-fbdev 
+2).安装xorg：
+
+[root@Arch ~]# pacman -S xorg-server
+3).安装桌面环境：plasma-desktop，最小化安装kde，命令行：konsole dolphin，还有sudo pacman -S plasma-nm，不装这个的话，用nmtui也可以。
+
+[root@Arch ~]# pacman -S xfce4 xfce4-goodies
+[root@Arch ~]# pacman -S lxde
+[root@Arch ~]# systemctl enable lxdm.service
+
+
+
+
 安装plasma-desktop，konsole、dolphin，就可以了，按需装自己所需的。
 声音是：sudo pacman -S plasma-pa 
 电源是：  sudo pacman -S powerdevil
-网络是，plasma-nm，kdeplasma-addons，sddm-kcm，user-manager，breeze-grub，
+网络是，plasma-nm，kdeplasma-addons，sddm-kcm，user-manager，breeze-grub，网络管理图形工具：pacman -S network-manager-applet
+efi、boot：efibootmgr -v
+root #efibootmgr -c -d /dev/sda -p 1 -L "manjaro" -l "\efi\grub\grubx64.efi"
+
+静态ip：
+
+Wired adapter using a static IP
+  vim  /etc/systemd/network/25-wired.network
+[Match]
+Name=eth0
+[Network]
+Address=192.168.43.7/24
+Gateway=192.168.43.1
+DNS=223.6.6.6
+#DNS=8.8.8.8
+
+来自 <https://wiki.archlinux.org/index.php/Systemd-networkd> 
 
 
-
+To use systemd-networkd, start/enable systemd-networkd.service.
+It is optional to also start/enable systemd-resolved.service, 
+systemctl  enable  systemd-networkd.service  systemd-resolved.service
 
 
 
